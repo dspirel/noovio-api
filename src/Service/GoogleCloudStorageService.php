@@ -82,7 +82,9 @@ class GoogleCloudStorageService
             if (str_ends_with(strtolower($object->name()), '.jpg') ||
                 str_ends_with(strtolower($object->name()), '.jpeg'))
                 {
-                    $files[] = $this->getSignedUrl($object->name(), $urlExpiration);
+                    $files[] = [
+                        'image' => $this->getSignedUrl($object->name(), $urlExpiration)
+                    ];
                 }
         }
 
