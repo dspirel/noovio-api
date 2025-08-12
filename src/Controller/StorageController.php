@@ -26,9 +26,7 @@ final class StorageController extends AbstractController
 
         $images = $gcs->getImages($data['user'],$data['folder']);
 
-        return new JsonResponse([
-            'images' => $images
-        ], Response::HTTP_OK);
+        return new JsonResponse($images, Response::HTTP_OK);
     }
 
     #[Route('/storage/getTextFile', name: 'app_user_folder_text')]
