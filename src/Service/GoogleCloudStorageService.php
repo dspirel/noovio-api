@@ -41,6 +41,42 @@ class GoogleCloudStorageService
 
         return $folders;
     }
+
+    public function getImages(string $folder): array
+    {
+        $bucket = $this->storage->bucket($this->mainBucket);
+
+        $options = [
+            'prefix' => $folder,
+            'delimiter' => '/'
+        ];
+
+        $objects = $bucket->objects($options);
+        $files = [];
+        $urlExpiration = now('+30 minutes');
+
+        foreach ($objects as $object) {
+            if (str_ends_with(strtolower($object->name()), '.jpg') ||
+                str_ends_with(strtolower($object->name()), '.jpeg')) {
+                $files[] = [
+                    'name' => $object->name(),
+                    'url' => $this->getSignedUrl($object->name(), $urlExpiration),
+                    ];
+                }
+        }
+
+        return $files;
+    }
+
+    public function getSignedUrl(string $objectName, $expires, array $options = []): string
+    {
+        $bucket = $this->storage->bucket($this->mainBucket);
+        $object = $bucket->object($objectName);
+
+        $url = $object->signedUrl($expires, $options);
+
+        return $url;
+    }
     // public function listUserFiles(string $userId): array
     // {
     //     $bucket = $this->storage->bucket($this->bucketName);
@@ -136,33 +172,6 @@ class GoogleCloudStorageService
     //     }
     // }
 
-    // /**
-    //  * Get a signed URL for accessing a file.
-    //  *
-    //  * @param string $bucketName The name of the bucket
-    //  * @param string $objectName The path to the file in the bucket
-    //  * @param \DateTimeInterface|int $expires Expiration time (DateTime or seconds from now)
-    //  * @param array $options Additional options for the signed URL
-    //  * @return string The signed URL
-    //  * @throws \RuntimeException If URL generation fails
-    //  */
-    // public function getSignedUrl(string $objectName, $expires, array $options = []): string
-    // {
-    //     try {
-    //         $bucket = $this->storage->bucket($this->bucketName);
-    //         $object = $bucket->object($objectName);
-
-    //         if (!$object->exists()) {
-    //             throw new NotFoundHttpException(sprintf('File "%s" does not exist in bucket "%s".', $objectName, $this->bucketName));
-    //         }
-
-    //         $url = $object->signedUrl($expires, $options);
-
-    //         return $url;
-    //     } catch (\Exception $e) {
-    //         throw new \RuntimeException(sprintf('Failed to generate signed URL: %s', $e->getMessage()), 0, $e);
-    //     }
-    // }
 
     // public function uploadFile(string $localPath, string $destinationPath, bool $public = false): string
     // {

@@ -14,26 +14,39 @@ use function Symfony\Component\Clock\now;
 
 final class StorageController extends AbstractController
 {
-    #[Route('/storage/getUserFolders', name: 'app_user_folders')]
-    public function getUserFolders(
-        GoogleCloudStorageService $gcs,
-        Request $request
-        ): JsonResponse
-        {
-            $data = json_decode($request->getContent(), true);
+    #[Route('/storage/getImages', name: 'app_user_folder_images')]
+    public function getImages(GoogleCloudStorageService $gcs, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
 
-            $apiSecretKey = $_ENV['API_SECRET_KEY'] ?? null;
-            if ($data['secret'] !== $apiSecretKey) {
-                return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
-            }
-
-
-            $folders = $gcs->listUserFolders($data['user']);
-
-            return new JsonResponse([
-                'data' => $folders
-            ], Response::HTTP_OK);
+        $apiSecretKey = $_ENV['API_SECRET_KEY'] ?? null;
+        if ($data['secret'] !== $apiSecretKey) {
+            return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
         }
+
+        $images = $gcs->getImages($data['folder']);
+
+        return new JsonResponse([
+            'data' => $images
+        ], Response::HTTP_OK);
+    }
+
+    #[Route('/storage/getUserFolders', name: 'app_user_folders')]
+    public function getUserFolders(GoogleCloudStorageService $gcs, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $apiSecretKey = $_ENV['API_SECRET_KEY'] ?? null;
+        if ($data['secret'] !== $apiSecretKey) {
+            return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $folders = $gcs->listUserFolders($data['user']);
+
+        return new JsonResponse([
+            'data' => $folders
+        ], Response::HTTP_OK);
+    }
 
     #[Route('/', name: 'app_home')]
     public function home(): JsonResponse
