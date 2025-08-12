@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Controller;
+
+use App\Service\GoogleCloudStorageService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+
+use function Symfony\Component\Clock\now;
+
+final class StorageController extends AbstractController
+{
+    #[Route('/storage/getUserFolders', name: 'app_user_folders')]
+    public function getUserFolders(
+        GoogleCloudStorageService $gcs,
+        Request $request
+        ): JsonResponse
+        {
+            $data = json_decode($request->getContent(), true);
+
+            $apiSecretKey = $_ENV['API_SECRET_KEY'] ?? null;
+            if ($data['secret'] !== $apiSecretKey) {
+                return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+            }
+
+            $folders = $gcs->listUserFolders('StudioVision');
+
+            return new JsonResponse([
+                'data' => $folders
+            ], Response::HTTP_OK);
+        }
+
+        #[Route('/', name: 'app_home')]
+        public function home(): JsonResponse
+        {
+            return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+}
