@@ -42,6 +42,29 @@ class GoogleCloudStorageService
         return $folders;
     }
 
+    public function getTextFile(string $user, string $folder): string
+    {
+        $bucket = $this->storage->bucket($this->mainBucket);
+
+        $options = [
+            'prefix' => $user . '/' . $folder . '/',
+            'delimiter' => ''
+        ];
+
+        $objects = $bucket->objects($options);
+
+        $text = "";
+
+        foreach ($objects as $object) {
+            if (str_ends_with(strtolower($object->name()), '.txt'))
+                {
+                    $text = $object->downloadAsString();
+                }
+        }
+
+        return $text;
+    }
+
     public function getImages(string $user, string $folder): array
     {
         $bucket = $this->storage->bucket($this->mainBucket);

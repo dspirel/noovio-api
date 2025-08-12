@@ -27,7 +27,24 @@ final class StorageController extends AbstractController
         $images = $gcs->getImages($data['user'],$data['folder']);
 
         return new JsonResponse([
-            'data' => $images
+            'images' => $images
+        ], Response::HTTP_OK);
+    }
+
+    #[Route('/storage/getTextFile', name: 'app_user_folder_text')]
+    public function getTextFile(GoogleCloudStorageService $gcs, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $apiSecretKey = $_ENV['API_SECRET_KEY'] ?? null;
+        if ($data['secret'] !== $apiSecretKey) {
+            return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $text = $gcs->getTextFile($data['user'],$data['folder']);
+
+        return new JsonResponse([
+            'text' => $text
         ], Response::HTTP_OK);
     }
 
