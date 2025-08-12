@@ -30,10 +30,10 @@ class GoogleCloudStorageService
             'delimiter' => '.'
         ];
 
-        $results = $bucket->objects($options);
+        $objects = $bucket->objects($options);
         $folders = [];
 
-        foreach ($results as $folder) {
+        foreach ($objects as $folder) {
             $f = str_replace($prefix, '', $folder->name());
             $f = rtrim($f, '/');
             if ($f !== '') $folders[] = $f;
@@ -42,13 +42,13 @@ class GoogleCloudStorageService
         return $folders;
     }
 
-    public function getImages(string $folder): array
+    public function getImages(string $user, string $folder): array
     {
         $bucket = $this->storage->bucket($this->mainBucket);
 
         $options = [
-            'prefix' => $folder,
-            'delimiter' => '/'
+            'prefix' => $user . '/' . $folder . '/',
+            'delimiter' => ''
         ];
 
         $objects = $bucket->objects($options);
@@ -57,11 +57,9 @@ class GoogleCloudStorageService
 
         foreach ($objects as $object) {
             if (str_ends_with(strtolower($object->name()), '.jpg') ||
-                str_ends_with(strtolower($object->name()), '.jpeg')) {
-                $files[] = [
-                    'name' => $object->name(),
-                    'url' => $this->getSignedUrl($object->name(), $urlExpiration),
-                    ];
+                str_ends_with(strtolower($object->name()), '.jpeg'))
+                {
+                    $files[] = $this->getSignedUrl($object->name(), $urlExpiration);
                 }
         }
 

@@ -24,7 +24,7 @@ final class StorageController extends AbstractController
             return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
         }
 
-        $images = $gcs->getImages($data['folder']);
+        $images = $gcs->getImages($data['user'],$data['folder']);
 
         return new JsonResponse([
             'data' => $images
