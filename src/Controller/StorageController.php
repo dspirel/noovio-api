@@ -34,10 +34,9 @@ final class StorageController extends AbstractController
             ], Response::HTTP_OK);
         }
 
-        #[Route('/', name: 'app_home')]
-        public function home(): JsonResponse
-        {
-            return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
-        }
-
+    #[Route('/', name: 'app_home')]
+    public function home(): JsonResponse
+    {
+        return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+    }
 }
