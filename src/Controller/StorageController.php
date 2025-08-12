@@ -27,7 +27,8 @@ final class StorageController extends AbstractController
                 return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
             }
 
-            $folders = $gcs->listUserFolders('StudioVision');
+
+            $folders = $gcs->listUserFolders($data['user']);
 
             return new JsonResponse([
                 'data' => $folders
